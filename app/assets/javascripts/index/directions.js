@@ -71,7 +71,9 @@ OSM.Directions = function (map) {
       var dragging = (e.type === "drag");
       if (dragging && !chosenEngine.draggable) return;
       if (dragging && awaitingRoute) return;
-      endpoint.setLatLng(e.target.getLatLng());
+
+      endpoint.setLatLng(e.target.getLatLng(), true);
+
       dragCallback(dragging);
     });
 
@@ -83,16 +85,21 @@ OSM.Directions = function (map) {
       // make text the same in both text boxes
       var value = e.target.value;
       endpoint.setValue(value);
+      input.val(value);
     });
 
     endpoint.setValue = function (value, latlng) {
-      endpoint.value = value;
-      delete endpoint.latlng;
-      input.removeClass("is-invalid");
-      input.val(value);
+      var new_latlng_value = latlng;
+      if (value === endpoint.value) {
+        new_latlng_value = endpoint.latlng;
+      } else {
+        endpoint.value = value;
+        delete endpoint.latlng;
+        input.removeClass("is-invalid");
+      }
 
-      if (latlng) {
-        endpoint.setLatLng(latlng);
+      if (new_latlng_value) {
+        endpoint.setLatLng(new_latlng_value);
       } else {
         endpoint.getGeocode();
       }
@@ -118,17 +125,23 @@ OSM.Directions = function (map) {
           return;
         }
 
-        endpoint.setLatLng(L.latLng(json[0]));
-
-        input.val(json[0].display_name);
+        endpoint.setLatLng(L.latLng(json[0]), false, json[0].display_name);
+        endpoint.value = json[0].display_name;
 
         geocodeCallback();
       });
     };
 
-    endpoint.setLatLng = function (ll) {
-      var precision = OSM.zoomPrecision(map.getZoom());
-      input.val(ll.lat.toFixed(precision) + ", " + ll.lng.toFixed(precision));
+    endpoint.setLatLng = function (ll, value_from_ll, value) {
+      if (typeof value_from_ll !== "undefined" && value_from_ll !== null) {
+        if (value_from_ll) {
+          var precision = OSM.zoomPrecision(map.getZoom());
+          input.val(ll.lat.toFixed(precision) + ", " + ll.lng.toFixed(precision));
+        } else {
+          input.val(value);
+        }
+      }
+
       endpoint.hasGeocode = true;
       endpoint.latlng = ll;
       endpoint.marker
@@ -385,7 +398,7 @@ OSM.Directions = function (map) {
       var pt = L.DomEvent.getMousePosition(oe, map.getContainer()); // co-ordinates of the mouse pointer at present
       pt.y += 20;
       var ll = map.containerPointToLatLng(pt);
-      endpoints[type === "from" ? 0 : 1].setLatLng(ll);
+      endpoints[type === "from" ? 0 : 1].setLatLng(ll, true);
       getRoute(true, true);
     });
 
