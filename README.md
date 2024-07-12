@@ -36,7 +36,7 @@ We're always keen to have more developers! Pull requests are very welcome.
 * Bugs are recorded in the [issue tracker](https://github.com/openstreetmap/openstreetmap-website/issues).
 * Translation is managed by [Translatewiki](https://translatewiki.net/wiki/Translating:OpenStreetMap).
 * Local Chapters shown on the Communities page, and their translations, come from [osm-community-index](https://github.com/osmlab/osm-community-index).
-* There is a [rails-dev@openstreetmap.org](https://lists.openstreetmap.org/listinfo/rails-dev) mailing list for development discussion.
+* There is a [rails-dev@openstreetmap.org](https://lists.openstreetmap.org/listinfo/rails-dev) mailing list for development discussions.
 * IRC - there is the #osm-dev channel on irc.oftc.net.
 
 More details on contributing to the code are in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
