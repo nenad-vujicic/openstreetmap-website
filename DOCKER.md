@@ -1,4 +1,4 @@
-# Using Docker and Docker Compose for Development and Testing
+# Using Docker and Docker Compose for Developments and Testing
 
 These instructions are designed for setting up `openstreetmap-website` for development and testing using [Docker](https://www.docker.com/). This will allow you to install the OpenStreetMap application and all its dependencies in Docker images and then run them in containers, almost with a single command.
 
