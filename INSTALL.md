@@ -1,4 +1,4 @@
-# Installation
+# Instalacija
 
 These instructions are designed for setting up `openstreetmap-website` for development and testing.
 If you want to deploy the software for your own project, then see the notes at the end.
