@@ -6,18 +6,12 @@ on:
   pull_request_target:
     types: [opened, synchronize]
 
-permissions:
-  pull-requests: write
-  statuses: write
-
 jobs:
   danger:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -25,7 +19,8 @@ jobs:
           rubygems: 3.4.10
           bundler-cache: true
       - name: Danger
-        env:
-          DANGER_GITHUB_BEARER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          bundle exec danger --verbose --base=${{ github.event.pull_request.base.sha }} --head=${{ github.event.pull_request.head.sha }}
+          TOKEN='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'
+          export DANGER_GITHUB_API_TOKEN=$TOKEN
+          export RUNNING_IN_ACTIONS=true
+          bundle exec danger --verbose
