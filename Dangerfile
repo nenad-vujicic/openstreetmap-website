@@ -30,3 +30,11 @@ if git.commits.any? { |c| c.parents.count > 1 }
 else
   auto_label.remove("merge-commits")
 end
+
+# Check if Gemfile is modified but Gemfile.lock is not
+if git.modified_files.include?("Gemfile") && git.modified_files.exclude?("Gemfile.lock")
+  warn("Gemfile was updated, but Gemfile.lock wasn't updated. Usually, when Gemfile is updated, you should run `bundle install` to update Gemfile.lock.")
+  auto_label.set(pr_number, "gemfile-lock-outdated", "F9D0C4")
+else
+  auto_label.remove("gemfile-lock-outdated")
+end
