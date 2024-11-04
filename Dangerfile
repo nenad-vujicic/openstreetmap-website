@@ -1,3 +1,5 @@
+require 'active_support/core_ext/enumerable'
+
 # Get PR number
 pr_number = github.pr_json["number"]
 
