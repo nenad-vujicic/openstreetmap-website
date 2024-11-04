@@ -46,7 +46,7 @@ gem "sprockets-exporters_pack"
 # Restore File.exists? for oauth gem
 gem "file_exists"
 
-# Load rails plugins
+# Load rails pluginss
 gem "actionpack-page_caching", ">= 1.2.0"
 gem "activerecord-import"
 gem "active_record_union"
