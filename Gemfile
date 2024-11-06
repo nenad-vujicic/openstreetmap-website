@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-# Require rails
+# Require railss
 gem "rails", "~> 7.2.0"
 gem "turbo-rails"
 
