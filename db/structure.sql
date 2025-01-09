@@ -1073,7 +1073,8 @@ CREATE TABLE public.notes (
     updated_at timestamp without time zone NOT NULL,
     created_at timestamp without time zone NOT NULL,
     status public.note_status_enum NOT NULL,
-    closed_at timestamp without time zone
+    closed_at timestamp without time zone,
+    version bigint DEFAULT 1 NOT NULL
 );
 
 
@@ -1237,6 +1238,21 @@ CREATE SEQUENCE public.oauth_openid_requests_id_seq
 --
 
 ALTER SEQUENCE public.oauth_openid_requests_id_seq OWNED BY public.oauth_openid_requests.id;
+
+
+--
+-- Name: old_notes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.old_notes (
+    note_id bigint NOT NULL,
+    latitude integer NOT NULL,
+    longitude integer NOT NULL,
+    tile bigint NOT NULL,
+    "timestamp" timestamp(6) without time zone NOT NULL,
+    status public.note_status_enum NOT NULL,
+    version bigint DEFAULT 1 NOT NULL
+);
 
 
 --
@@ -2594,6 +2610,20 @@ CREATE INDEX index_oauth_openid_requests_on_access_grant_id ON public.oauth_open
 
 
 --
+-- Name: index_old_notes_on_tile; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_old_notes_on_tile ON public.old_notes USING btree (tile);
+
+
+--
+-- Name: index_old_notes_on_timestamp; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_old_notes_on_timestamp ON public.old_notes USING btree ("timestamp");
+
+
+--
 -- Name: index_reports_on_issue_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3397,6 +3427,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('23'),
 ('22'),
 ('21'),
+('20250110113134'),
+('20250109133505'),
 ('20241023004427'),
 ('20241022141247'),
 ('20240913171951'),

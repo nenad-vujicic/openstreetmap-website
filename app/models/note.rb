@@ -10,6 +10,7 @@
 #  created_at :datetime         not null
 #  status     :enum             not null
 #  closed_at  :datetime
+#  version    :bigint(8)        default(1), not null
 #
 # Indexes
 #
