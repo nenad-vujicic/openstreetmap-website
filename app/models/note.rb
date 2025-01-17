@@ -28,6 +28,8 @@
 class Note < ApplicationRecord
   include GeoRecord
 
+  belongs_to :author, :class_name => "User", :foreign_key => "user_id", :optional => true
+
   has_many :comments, -> { left_joins(:author).where(:visible => true, :users => { :status => [nil, "active", "confirmed"] }).order(:created_at) }, :class_name => "NoteComment", :foreign_key => :note_id
   has_many :all_comments, -> { left_joins(:author).order(:created_at) }, :class_name => "NoteComment", :foreign_key => :note_id, :inverse_of => :note
   has_many :subscriptions, :class_name => "NoteSubscription"
@@ -89,24 +91,44 @@ class Note < ApplicationRecord
     closed_at + DEFAULT_FRESHLY_CLOSED_LIMIT
   end
 
-  # Return the note's description, derived from the first comment
+  # Return the note's description, unless record is unavailable and
+  # it will be derived from the first comment
   def description
-    comments.first.body
+    if user_ip.nil? && user_id.nil?
+      comments.first.body
+    else
+      RichText.new("text", self[:description])
+    end
   end
 
-  # Return the note's author object, derived from the first comment
+  # Return the note's author object, unless record is unavailable and
+  # it will be derived from the first comment
   def author
-    comments.first.author
+    if user_ip.nil? && user_id.nil?
+      comments.first.author
+    else
+      self[:author]
+    end
   end
 
-  # Return the note's author ID, derived from the first comment
+  # Return the note's author ID, unless record is unavailable and
+  # it will be derived from the first comment
   def author_id
-    comments.first.author_id
+    if user_ip.nil? && user_id.nil?
+      comments.first.author_id
+    else
+      user_id
+    end
   end
 
-  # Return the note's author IP address, derived from the first comment
+  # Return the note's author IP address, unless record is unavailable and
+  # it will be derived from the first comment
   def author_ip
-    comments.first.author_ip
+    if user_ip.nil? && user_id.nil?
+      comments.first.author_ip
+    else
+      user_ip
+    end
   end
 
   private
