@@ -91,44 +91,19 @@ class Note < ApplicationRecord
     closed_at + DEFAULT_FRESHLY_CLOSED_LIMIT
   end
 
-  # Return the note's description, unless record is unavailable and
-  # it will be derived from the first comment
+  # Return the note's description
   def description
-    if user_ip.nil? && user_id.nil?
-      comments.first.body
-    else
-      RichText.new("text", self[:description])
-    end
+    RichText.new("text", self[:description])
   end
 
-  # Return the note's author object, unless record is unavailable and
-  # it will be derived from the first comment
-  def author
-    if user_ip.nil? && user_id.nil?
-      comments.first.author
-    else
-      self[:author]
-    end
-  end
-
-  # Return the note's author ID, unless record is unavailable and
-  # it will be derived from the first comment
+  # Return the note's author ID
   def author_id
-    if user_ip.nil? && user_id.nil?
-      comments.first.author_id
-    else
-      user_id
-    end
+    user_id
   end
 
-  # Return the note's author IP address, unless record is unavailable and
-  # it will be derived from the first comment
+  # Return the note's author IP address
   def author_ip
-    if user_ip.nil? && user_id.nil?
-      comments.first.author_ip
-    else
-      user_ip
-    end
+    user_ip
   end
 
   private
