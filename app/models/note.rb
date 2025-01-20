@@ -13,6 +13,7 @@
 #  description :text             default(""), not null
 #  user_id     :bigint(8)
 #  user_ip     :inet
+#  version     :bigint(8)        default(1), not null
 #
 # Indexes
 #
