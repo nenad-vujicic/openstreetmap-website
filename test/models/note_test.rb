@@ -49,11 +49,11 @@ class NoteTest < ActiveSupport::TestCase
 
   def test_description
     comment = create(:note_comment)
-    assert_equal comment.body, comment.note.description
+    assert_equal "Default note's description", comment.note.description
 
     user = create(:user)
     comment = create(:note_comment, :author => user)
-    assert_equal comment.body, comment.note.description
+    assert_equal "Default note's description", comment.note.description
   end
 
   def test_author
