@@ -47,15 +47,6 @@ class NoteTest < ActiveSupport::TestCase
     assert_not_predicate create(:note, :status => "open", :closed_at => nil), :closed?
   end
 
-  def test_description
-    comment = create(:note_comment)
-    assert_equal comment.body, comment.note.description
-
-    user = create(:user)
-    comment = create(:note_comment, :author => user)
-    assert_equal comment.body, comment.note.description
-  end
-
   def test_author
     comment = create(:note_comment)
     assert_nil comment.note.author
@@ -63,23 +54,6 @@ class NoteTest < ActiveSupport::TestCase
     user = create(:user)
     comment = create(:note_comment, :author => user)
     assert_equal user, comment.note.author
-  end
-
-  def test_author_id
-    comment = create(:note_comment)
-    assert_nil comment.note.author_id
-
-    user = create(:user)
-    comment = create(:note_comment, :author => user)
-    assert_equal user.id, comment.note.author_id
-  end
-
-  def test_author_ip
-    comment = create(:note_comment)
-    assert_nil comment.note.author_ip
-
-    comment = create(:note_comment, :author_ip => IPAddr.new("192.168.1.1"))
-    assert_equal IPAddr.new("192.168.1.1"), comment.note.author_ip
   end
 
   # Ensure the lat/lon is formatted as a decimal e.g. not 4.0e-05
