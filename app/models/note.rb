@@ -95,11 +95,6 @@ class Note < ApplicationRecord
     !author.nil? && author.status == "deleted"
   end
 
-  # Return the note's description, derived from the first comment
-  def description
-    comments.first.body
-  end
-
   # Return the note's author object, unless record is unavailable and
   # it will be derived from the first comment
   def author
@@ -108,16 +103,6 @@ class Note < ApplicationRecord
     else
       association(:author).reader
     end
-  end
-
-  # Return the note's author ID, derived from the first comment
-  def author_id
-    comments.first.author_id
-  end
-
-  # Return the note's author IP address, derived from the first comment
-  def author_ip
-    comments.first.author_ip
   end
 
   private
