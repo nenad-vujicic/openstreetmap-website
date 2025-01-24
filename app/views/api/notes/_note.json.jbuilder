@@ -7,6 +7,7 @@ end
 
 json.properties do
   json.id note.id
+  json.description note_description(note)
   json.url api_note_url(note, :format => params[:format])
 
   if note.closed?
