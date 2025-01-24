@@ -42,7 +42,7 @@ OSM.initializeNotesLayer = function (map) {
     } else {
       marker = L.marker(feature.geometry.coordinates.reverse(), {
         icon: noteIcons[feature.properties.status],
-        title: feature.properties.comments[0].text,
+        title: feature.properties.description,
         opacity: 0.8,
         interactive: true
       });
