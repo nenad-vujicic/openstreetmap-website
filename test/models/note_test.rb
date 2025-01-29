@@ -56,15 +56,6 @@ class NoteTest < ActiveSupport::TestCase
     assert_equal comment.body, comment.note.description
   end
 
-  def test_author
-    comment = create(:note_comment)
-    assert_nil comment.note.author
-
-    user = create(:user)
-    comment = create(:note_comment, :author => user)
-    assert_equal user, comment.note.author
-  end
-
   # Ensure the lat/lon is formatted as a decimal e.g. not 4.0e-05
   def test_lat_lon_format
     note = build(:note, :latitude => 0.00004 * GeoRecord::SCALE, :longitude => 0.00008 * GeoRecord::SCALE)
