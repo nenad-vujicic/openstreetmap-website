@@ -3281,7 +3281,7 @@ ALTER TABLE ONLY public.notes
 --
 
 ALTER TABLE ONLY public.old_notes
-    ADD CONSTRAINT old_notes_note_id_fkey FOREIGN KEY (note_id) REFERENCES public.notes(id) NOT VALID;
+    ADD CONSTRAINT old_notes_note_id_fkey FOREIGN KEY (note_id) REFERENCES public.notes(id);
 
 
 --
@@ -3289,7 +3289,7 @@ ALTER TABLE ONLY public.old_notes
 --
 
 ALTER TABLE ONLY public.old_notes
-    ADD CONSTRAINT old_notes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) NOT VALID;
+    ADD CONSTRAINT old_notes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -3480,6 +3480,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('22'),
 ('21'),
 ('20250206202905'),
+('20250131150952'),
 ('20250131140952'),
 ('20250130160355'),
 ('20250121191749'),
