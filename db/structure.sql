@@ -1077,7 +1077,8 @@ CREATE TABLE public.notes (
     closed_at timestamp without time zone,
     description text DEFAULT ''::text NOT NULL,
     user_id bigint,
-    user_ip inet
+    user_ip inet,
+    version bigint DEFAULT 1 NOT NULL
 );
 
 
@@ -1241,6 +1242,24 @@ CREATE SEQUENCE public.oauth_openid_requests_id_seq
 --
 
 ALTER SEQUENCE public.oauth_openid_requests_id_seq OWNED BY public.oauth_openid_requests.id;
+
+
+--
+-- Name: old_notes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.old_notes (
+    note_id bigint NOT NULL,
+    latitude integer NOT NULL,
+    longitude integer NOT NULL,
+    tile bigint NOT NULL,
+    "timestamp" timestamp(6) without time zone NOT NULL,
+    status public.note_status_enum NOT NULL,
+    description text DEFAULT ''::text NOT NULL,
+    user_id bigint,
+    user_ip inet,
+    version bigint DEFAULT 1 NOT NULL
+);
 
 
 --
@@ -2073,6 +2092,14 @@ ALTER TABLE ONLY public.oauth_openid_requests
 
 
 --
+-- Name: old_notes old_notes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.old_notes
+    ADD CONSTRAINT old_notes_pkey PRIMARY KEY (note_id, version);
+
+
+--
 -- Name: redactions redactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2630,6 +2657,13 @@ CREATE UNIQUE INDEX index_oauth_applications_on_uid ON public.oauth_applications
 --
 
 CREATE INDEX index_oauth_openid_requests_on_access_grant_id ON public.oauth_openid_requests USING btree (access_grant_id);
+
+
+--
+-- Name: index_old_notes_on_version; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_old_notes_on_version ON public.old_notes USING btree (version);
 
 
 --
@@ -3258,6 +3292,22 @@ ALTER TABLE ONLY public.notes
 
 
 --
+-- Name: old_notes old_notes_note_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.old_notes
+    ADD CONSTRAINT old_notes_note_id_fkey FOREIGN KEY (note_id) REFERENCES public.notes(id) NOT VALID;
+
+
+--
+-- Name: old_notes old_notes_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.old_notes
+    ADD CONSTRAINT old_notes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) NOT VALID;
+
+
+--
 -- Name: redactions redactions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3448,6 +3498,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20250304172758'),
 ('20250212160355'),
 ('20250206202905'),
+('20250131140952'),
 ('20250121191749'),
 ('20250105154621'),
 ('20250104140952'),
