@@ -186,6 +186,9 @@ module Api
         @note.close
 
         add_comment(@note, comment, "closed")
+
+        # Create appropriate old_nodes entry
+        OldNote.from_note(@note, @note.closed_at)
       end
 
       # Return a copy of the updated note
@@ -216,6 +219,9 @@ module Api
         @note.reopen
 
         add_comment(@note, comment, "reopened")
+
+        # Create appropriate old_nodes entry
+        OldNote.from_note(@note, @note.updated_at)
       end
 
       # Return a copy of the updated note

@@ -25,4 +25,20 @@
 
 class OldNote < ApplicationRecord
   belongs_to :author, :class_name => "User", :foreign_key => "user_id", :optional => true, :inverse_of => :old_notes
+  belongs_to :note, :class_name => "Note", :inverse_of => :old_notes
+
+  def self.from_note(note, timestamp)
+    OldNote.create(
+      :note_id => note.id,
+      :latitude => note.latitude,
+      :longitude => note.longitude,
+      :tile => note.tile,
+      :timestamp => timestamp,
+      :status => note.status,
+      :description => note.description,
+      :user_id => note.user_id,
+      :user_ip => note.user_ip,
+      :version => note.version
+    )
+  end
 end
