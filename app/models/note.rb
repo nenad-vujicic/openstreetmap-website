@@ -32,6 +32,8 @@ class Note < ApplicationRecord
 
   belongs_to :author, :class_name => "User", :foreign_key => "user_id", :optional => true
 
+  has_many :old_notes, -> { order(:version) }, :inverse_of => :note
+
   has_many :comments, -> { left_joins(:author).where(:visible => true, :users => { :status => [nil, "active", "confirmed"] }).order(:created_at) }, :class_name => "NoteComment", :foreign_key => :note_id
   has_many :all_comments, -> { left_joins(:author).order(:created_at) }, :class_name => "NoteComment", :foreign_key => :note_id, :inverse_of => :note
   has_many :subscriptions, :class_name => "NoteSubscription"
@@ -61,6 +63,7 @@ class Note < ApplicationRecord
   def close
     self.status = "closed"
     self.closed_at = Time.now.utc
+    self.version = version + 1
     save
   end
 
@@ -68,6 +71,7 @@ class Note < ApplicationRecord
   def reopen
     self.status = "open"
     self.closed_at = nil
+    self.version = version + 1
     save
   end
 
