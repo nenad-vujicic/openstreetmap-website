@@ -34,8 +34,6 @@ class Note < ApplicationRecord
 
   has_many :old_notes, -> { order(:version) }, :inverse_of => :note
 
-  has_many :comments, -> { left_joins(:author).where(:visible => true, :users => { :status => [nil, "active", "confirmed"] }).order(:created_at) }, :class_name => "NoteComment", :foreign_key => :note_id
-  has_many :all_comments, -> { left_joins(:author).order(:created_at) }, :class_name => "NoteComment", :foreign_key => :note_id, :inverse_of => :note
   has_many :subscriptions, :class_name => "NoteSubscription"
   has_many :subscribers, :through => :subscriptions, :source => :user
 
@@ -53,6 +51,16 @@ class Note < ApplicationRecord
   after_initialize :set_defaults
 
   DEFAULT_FRESHLY_CLOSED_LIMIT = 7.days
+
+  def comments
+    NoteComment.left_joins(:author)
+               .where(:note_id => id, :visible => true, :users => { :status => [nil, "active", "confirmed"] })
+               .order(:created_at)
+  end
+
+  def all_comments
+    NoteComment.left_joins(:author).order(:created_at)
+  end
 
   # Sanity check the latitude and longitude and add an error if it's broken
   def validate_position

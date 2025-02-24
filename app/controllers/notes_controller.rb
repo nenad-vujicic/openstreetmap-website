@@ -25,7 +25,14 @@ class NotesController < ApplicationController
     @notes = @user.notes
     @notes = @notes.visible unless current_user&.moderator?
     @notes = @notes.where(:status => params[:status]) unless params[:status] == "all" || params[:status].blank?
-    @notes = @notes.order("updated_at DESC, id").distinct.offset((@page - 1) * @page_size).limit(@page_size).preload(:comments => :author)
+    @notes = @notes.order("updated_at DESC, id").distinct.offset((@page - 1) * @page_size).limit(@page_size)
+
+    # Manually load comments and their authors for each note
+    @notes.each do |note|
+      note.comments.each do |comment|
+        comment.author # This will load the author for each comment
+      end
+    end
 
     render :layout => "site"
   end

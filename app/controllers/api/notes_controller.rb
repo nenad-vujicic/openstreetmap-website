@@ -40,7 +40,7 @@ module Api
       # Find the notes we want to return
       notes = notes.bbox(bbox).order("updated_at DESC")
       notes = query_limit(notes)
-      @notes = notes.preload(:comments)
+      @notes = notes
 
       # Render the result
       respond_to do |format|
@@ -246,7 +246,6 @@ module Api
       @comments = NoteComment.where(:note => notes)
                              .order(:created_at => :desc)
       @comments = query_limit(@comments)
-      @comments = @comments.preload(:author, :note => { :comments => :author })
 
       # Render the result
       respond_to do |format|
@@ -263,7 +262,7 @@ module Api
 
       # Add any user filter
       user = query_conditions_user_value
-      @notes = @notes.joins(:comments).where(:note_comments => { :author_id => user }) if user
+      @notes = @notes.select { |note| note.comments.any? { |comment| comment.author_id == user.id } } if user
 
       # Add any text filter
       if params[:q]
