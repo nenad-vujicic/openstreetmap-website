@@ -48,21 +48,31 @@ class NoteTest < ActiveSupport::TestCase
   end
 
   def test_description
+    note = create(:note)
+    assert_equal "Default note's description", note.description
+
+    note = create(:note, :description => "Test description #1")
+    assert_equal "Test description #1", note.description
+
     comment = create(:note_comment)
-    assert_equal comment.body, comment.note.description
+    assert_equal "Default note's description", comment.note.description
+
+    comment = create(:note_comment, :note => build(:note, :description => "Test description #2"))
+    assert_equal "Test description #2", comment.note.description
 
     user = create(:user)
-    comment = create(:note_comment, :author => user)
-    assert_equal comment.body, comment.note.description
-  end
 
-  def test_author
-    comment = create(:note_comment)
-    assert_nil comment.note.author
-
-    user = create(:user)
     comment = create(:note_comment, :author => user)
-    assert_equal user, comment.note.author
+    assert_equal "Default note's description", comment.note.description
+
+    comment = create(:note_comment, :author => user, :note => build(:note, :description => "Test description #3"))
+    assert_equal "Test description #3", comment.note.description
+
+    note = create(:note_with_comments)
+    assert_equal "Default note's description", note.description
+
+    note = create(:note_with_comments, :description => "Test description #4")
+    assert_equal "Test description #4", note.description
   end
 
   # Ensure the lat/lon is formatted as a decimal e.g. not 4.0e-05
