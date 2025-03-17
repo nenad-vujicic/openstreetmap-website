@@ -59,6 +59,56 @@ class Note < ApplicationRecord
     errors.add(:base, "Note is not in the world") unless in_world?
   end
 
+  # Creates note from hash-table
+  def self.from_params(params)
+    note = Note.new
+
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput, "No lat was given" unless params[:lat]
+    raise OSM::APIBadUserInput, "No lon was given" unless params[:lon]
+    raise OSM::APIBadUserInput, "No text was given" if params[:text].blank?
+
+    # Extract the arguments
+    lon = OSM.parse_float(params[:lon], OSM::APIBadUserInput, "lon was not a number")
+    lat = OSM.parse_float(params[:lat], OSM::APIBadUserInput, "lat was not a number")
+    description = params[:text]
+
+    # Initialize the note (version is set to 1 by default)
+    note.lat = lat
+    note.lon = lon
+    note.description = description
+    note.user_id = params[:user_id]
+    note.user_ip = params[:user_ip]
+    raise OSM::APIBadUserInput, "The note is outside this world" unless note.in_world?
+
+    note
+  end
+
+  # Saves created note and saves the history
+  def save_with_history!(action_type)
+    # Saves current note to database
+    save!
+
+    # Depending on action type, sets timestamp to created_at, updated_at or closed_at
+    timestamp = nil
+    case action_type
+    when :create
+      timestamp = created_at
+    when :reopen
+      timestamp = updated_at
+    when :close
+      timestamp = closed_at
+    else
+      raise ArgumentError, "Invalid action: #{action_type}. Expected :create, :reopen, or :close"
+    end
+
+    # Creates and initializes note version
+    note_version = NoteVersion.from_note(self, timestamp)
+
+    # Saves note version to database
+    note_version.save_with_history!
+  end
+
   # Close a note
   def close
     self.status = "closed"
