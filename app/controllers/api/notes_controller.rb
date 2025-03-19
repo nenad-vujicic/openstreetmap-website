@@ -77,30 +77,16 @@ module Api
       # Check the ACLs
       raise OSM::APIAccessDenied if current_user.nil? && Acl.no_note_comment(request.remote_ip)
 
-      # Check the arguments are sane
-      raise OSM::APIBadUserInput, "No lat was given" unless params[:lat]
-      raise OSM::APIBadUserInput, "No lon was given" unless params[:lon]
-      raise OSM::APIBadUserInput, "No text was given" if params[:text].blank?
-
-      # Extract the arguments
-      lon = OSM.parse_float(params[:lon], OSM::APIBadUserInput, "lon was not a number")
-      lat = OSM.parse_float(params[:lat], OSM::APIBadUserInput, "lat was not a number")
-      description = params[:text]
-
-      # Get note's author info (for logged in users - user_id, for logged out users - IP address)
-      note_author_info = author_info
+      # Creates and initializes new note object from hash table (union of passed parameters and note's author info)
+      @note = Note.from_params(params.merge(author_info))
 
       # Include in a transaction to ensure that there is always a note_comment for every note
       Note.transaction do
-        # Create the note
-        @note = Note.create(:lat => lat, :lon => lon, :description => description, :user_id => note_author_info[:user_id], :user_ip => note_author_info[:user_ip])
-        raise OSM::APIBadUserInput, "The note is outside this world" unless @note.in_world?
-
-        # Save the note
-        @note.save!
+        # Saves the note together with history
+        @note.save_with_history!(:create)
 
         # Add opening comment (description) to the note
-        add_comment(@note, description, "opened")
+        add_comment(@note, @note.description, "opened")
       end
 
       # Return a copy of the new note
@@ -189,6 +175,9 @@ module Api
         # Close the note and add a comment
         @note.close
 
+        # Save with history
+        @note.save_with_history!(:close)
+
         add_comment(@note, comment, "closed")
       end
 
@@ -218,6 +207,9 @@ module Api
 
         # Reopen the note and add a comment
         @note.reopen
+
+        # Save with history
+        @note.save_with_history!(:reopen)
 
         add_comment(@note, comment, "reopened")
       end

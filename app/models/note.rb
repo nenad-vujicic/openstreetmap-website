@@ -113,14 +113,14 @@ class Note < ApplicationRecord
   def close
     self.status = "closed"
     self.closed_at = Time.now.utc
-    save
+    self.version = version + 1
   end
 
   # Reopen a note
   def reopen
     self.status = "open"
     self.closed_at = nil
-    save
+    self.version = version + 1
   end
 
   # Check if a note is visible
