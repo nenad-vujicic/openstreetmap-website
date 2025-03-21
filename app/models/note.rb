@@ -29,6 +29,8 @@
 #
 
 class Note < ApplicationRecord
+  require "xml/libxml"
+
   include GeoRecord
 
   belongs_to :author, :class_name => "User", :foreign_key => "user_id", :optional => true
@@ -92,6 +94,28 @@ class Note < ApplicationRecord
     end
 
     note
+  end
+
+  # Creates note from XML file
+  def self.from_xml(xml)
+    p = XML::Parser.string(xml, :options => XML::Parser::Options::NOERROR)
+    doc = p.parse
+    pt = doc.find_first("//osm/note")
+
+    if pt
+      note = Note.new
+
+      # TODO: finish this
+      note.lat = OSM.parse_float(pt["lat"], OSM::APIBadXMLError, "note", pt, "lat not a number")
+      note.lon = OSM.parse_float(pt["lon"], OSM::APIBadXMLError, "note", pt, "lon not a number")
+      # TODO: finish this
+
+      note
+    else
+      raise OSM::APIBadXMLError.new("note", xml, "XML doesn't contain an osm/note element.")
+    end
+  rescue LibXML::XML::Error, ArgumentError => e
+    raise OSM::APIBadXMLError.new("note", xml, e.message)
   end
 
   # Saves created note and saves the history

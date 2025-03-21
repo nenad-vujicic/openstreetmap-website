@@ -77,8 +77,17 @@ module Api
       # Check the ACLs
       raise OSM::APIAccessDenied if current_user.nil? && Acl.no_note_comment(request.remote_ip)
 
-      # Creates and initializes new note object from hash table (union of passed parameters and note's author info)
-      @note = Note.from_params(params.merge(author_info))
+      # Creates and initializes new note objec
+      @note = nil
+      if request.content_type&.start_with?("application/x-www-form-urlencoded")
+        @note = Note.from_params(params.merge(author_info))
+      elsif request.content_type&.start_with?("application/xml")
+        @note = Note.from_xml(request.raw_post)
+      else
+        # TODO: finish this - throw exception!!
+        raise OSM::APIBadUserInput, "Bad content type!"
+        # TODO: finish this - throw exception!!
+      end
 
       # Include in a transaction to ensure that there is always a note_comment for every note
       Note.transaction do
