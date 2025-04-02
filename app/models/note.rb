@@ -94,6 +94,31 @@ class Note < ApplicationRecord
     note
   end
 
+  # Updates note from hash-table
+  def update_from_params(params, note_author_info)
+    # Update the note from passed parameters
+    self.longitude = OSM.parse_float(params[:lon], OSM::APIBadUserInput, "lon was not a number") if params[:lon].present?
+    self.latitude = OSM.parse_float(params[:lat], OSM::APIBadUserInput, "lat was not a number") if params[:lat].present?
+    self.description = params[:text] if params[:text].present?
+    raise OSM::APIBadUserInput, "The note is outside this world" unless note.in_world?
+
+    # New note version will have current author info
+    self.user_id = note_author_info[:user_id]
+    self.user_ip = note_author_info[:user_ip]
+
+    # Extract the tags, if present
+    if params[:tags].present?
+      self.tags = {}
+      parsed_tags = JSON.parse(params[:tags])
+      parsed_tags.each do |key, value|
+        tags[key] = value if key.presence && value.presence
+      end
+    end
+
+    # Increment version
+    self.version = version + 1
+  end
+
   # Saves created note without the history
   def save_without_history!
     # Saves current note to database
