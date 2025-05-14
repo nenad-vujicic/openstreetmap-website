@@ -15,7 +15,27 @@ xml.note("lon" => note.lon, "lat" => note.lat) do
   xml.date_closed note.closed_at if note.closed?
 
   xml.comments do
+    if note.description.present? && (note.author.nil? || note.author.status != "deleted")
+      xml.comment do
+        xml.date note.created_at
+
+        if note.author
+          xml.uid note.author.id
+          xml.user note.author.display_name
+          xml.user_url user_url(:display_name => note.author.display_name, :only_path => false)
+        end
+
+        xml.action "opened"
+
+        if note.description
+          xml.text note.description.to_text
+          xml.html note.description.to_html
+        end
+      end
+    end
     note.comments.each do |comment|
+      next unless comment.event == "opened"
+
       xml.comment do
         xml.date comment.created_at
 
