@@ -20,20 +20,45 @@ json.properties do
   json.status note.status
   json.closed_at note.closed_at.to_s if note.closed?
 
-  json.comments(note.comments) do |comment|
-    json.date comment.created_at.to_s
+  json.comments do
+    if note.description.present? && (note.author.nil? || note.author.status != "deleted")
+      json.child! do
+        json.date note.created_at.to_s
 
-    if comment.author
-      json.uid comment.author.id
-      json.user comment.author.display_name
-      json.user_url user_url(:display_name => comment.author.display_name, :only_path => false)
+          if note.author
+            json.uid note.author.id
+            json.user note.author.display_name
+            json.user_url user_url(:display_name => note.author.display_name, :only_path => false)
+          end
+
+          json.action "opened"
+
+          if note.description
+            json.text note.description.to_text
+            json.html note.description.to_html
+          end
+      end
     end
 
-    json.action comment.event
+    note.comments.each do |comment|
+      if comment.event != "opened"
+        json.child! do
+          json.date comment.created_at.to_s
 
-    if comment.body
-      json.text comment.body.to_text
-      json.html comment.body.to_html
+          if comment.author
+            json.uid comment.author.id
+            json.user comment.author.display_name
+            json.user_url user_url(:display_name => comment.author.display_name, :only_path => false)
+          end
+
+          json.action comment.event
+
+          if comment.body
+            json.text comment.body.to_text
+            json.html comment.body.to_html
+          end
+        end
+      end
     end
   end
 end
