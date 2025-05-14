@@ -1,3 +1,14 @@
 <div>
-  <%= render :partial => "comment", :collection => description.comments %>
+  <% if description.description.present? && (description.author.nil? || description.author.status != "deleted") %>
+    <div class="note-comment" style="margin-top: 5px">
+      <% if description.author.nil? -%>
+      <div class="note-comment-description" style="font-size: smaller; color: #999999"><%= t ".opened_at_html", :when => friendly_date_ago(description.created_at) %></div>
+      <% else -%>
+      <div class="note-comment-description" style="font-size: smaller; color: #999999"><%= t ".opened_at_by_html", :when => friendly_date_ago(description.created_at), :user => note_author(description.author, :only_path => false) %></div>
+      <% end -%>
+      <div class="note-comment-text"><%= description.description %></div>
+    </div>
+  <% end %>
+  <% note_comments = description.comments.first&.event == "opened" ? description.comments.drop(1) : description.comments %>
+  <%= render :partial => "comment", :collection => note_comments %>
 </div>
