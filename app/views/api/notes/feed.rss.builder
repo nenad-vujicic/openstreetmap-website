@@ -13,25 +13,51 @@ xml.rss("version" => "2.0",
     end
     xml.link url_for(:controller => "/site", :action => "index", :only_path => false)
 
-    @comments.each do |comment|
-      location = describe_location(comment.note.lat, comment.note.lon, 14, locale)
+    # Create single timeline
+    feed_items = (@comments + @notes).sort_by(&:created_at).reverse
 
-      xml.item do
-        xml.title t("api.notes.rss.#{comment.event}", :place => location)
+    # Output the feed
+    feed_items.each do |item|
+      if item.is_a?(NoteComment)
+        location = describe_location(item.note.lat, item.note.lon, 14, locale)
 
-        xml.link url_for(:controller => "/notes", :action => "show", :id => comment.note.id, :anchor => "c#{comment.id}", :only_path => false)
-        xml.guid url_for(:controller => "/notes", :action => "show", :id => comment.note.id, :anchor => "c#{comment.id}", :only_path => false)
+        xml.item do
+          xml.title t("api.notes.rss.#{item.event}", :place => location)
 
-        xml.description do
-          xml.cdata! render(:partial => "entry", :object => comment, :formats => [:html])
+          xml.link url_for(:controller => "/notes", :action => "show", :id => item.note.id, :anchor => "c#{item.id}", :only_path => false)
+          xml.guid url_for(:controller => "/notes", :action => "show", :id => item.note.id, :anchor => "c#{item.id}", :only_path => false)
+
+          xml.description do
+            xml.cdata! render(:partial => "entry", :object => item, :formats => [:html])
+          end
+
+          xml.dc :creator, item.author.display_name if item.author
+
+          xml.pubDate item.created_at.to_fs(:rfc822)
+          xml.geo :lat, item.note.lat
+          xml.geo :long, item.note.lon
+          xml.georss :point, "#{item.note.lat} #{item.note.lon}"
         end
+      else
+        location = describe_location(item.lat, item.lon, 14, locale)
 
-        xml.dc :creator, comment.author.display_name if comment.author
+        xml.item do
+          xml.title t("api.notes.rss.opened", :place => location)
 
-        xml.pubDate comment.created_at.to_fs(:rfc822)
-        xml.geo :lat, comment.note.lat
-        xml.geo :long, comment.note.lon
-        xml.georss :point, "#{comment.note.lat} #{comment.note.lon}"
+          xml.link url_for(:controller => "/notes", :action => "show", :id => item.id, :only_path => false)
+          xml.guid url_for(:controller => "/notes", :action => "show", :id => item.id, :only_path => false)
+
+          xml.description do
+            xml.cdata! render(:partial => "entry", :object => item, :formats => [:html])
+          end
+
+          xml.dc :creator, item.author.display_name if item.author
+
+          xml.pubDate item.created_at.to_fs(:rfc822)
+          xml.geo :lat, item.lat
+          xml.geo :long, item.lon
+          xml.georss :point, "#{item.lat} #{item.lon}"
+        end
       end
     end
   end

@@ -234,10 +234,11 @@ module Api
     def feed
       # Get any conditions that need to be applied
       notes = closed_condition(Note.all)
-      notes = bbox_condition(notes)
+      @notes = bbox_condition(notes)
 
       # Find the comments we want to return
       @comments = NoteComment.where(:note => notes)
+                             .where.not(:event => "opened")
                              .order(:created_at => :desc)
       @comments = query_limit(@comments)
       @comments = @comments.preload(:author, :note => { :comments => :author })

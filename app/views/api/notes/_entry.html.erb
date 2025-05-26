@@ -1,4 +1,15 @@
 <h2><%= t ".comment" %></h2>
+<% if entry.is_a?(NoteComment) %>
 <%= render :partial => "comment", :object => entry %>
+<% else %>
+<div class="note-comment" style="margin-top: 5px">
+  <% if entry.author.nil? -%>
+  <div class="note-comment-description" style="font-size: smaller; color: #999999"><%= t ".opened_at_html", :when => friendly_date_ago(entry.created_at) %></div>
+  <% else -%>
+  <div class="note-comment-description" style="font-size: smaller; color: #999999"><%= t ".opened_at_by_html", :when => friendly_date_ago(entry.created_at), :user => note_author(entry.author, :only_path => false) %></div>
+  <% end -%>
+  <div class="note-comment-text"><%= entry.description %></div>
+</div>
+<% end %>
 <h2><%= t ".full" %></h2>
-<%= render :partial => "description", :object => entry.note %>
+<%= render :partial => "description", :object => (entry.is_a?(NoteComment) ? entry.note : entry) %>
